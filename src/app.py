@@ -4,7 +4,7 @@ from PIL import Image
 import os
 
 # Funções de backend
-from boa_scraper import extract_approved_courses
+from boa_scraper import extract_approved_courses, analyze_course_completion
 
 # Componentes da interface
 from components.sidebar import render_sidebar
@@ -38,13 +38,18 @@ def main():
     if st.button("Analisar Equivalências", type="primary", use_container_width=True):
         if uploaded_file is not None:            
             with st.spinner('Analisando documento... Por favor, aguarde.'):
-                # TODO: Passar o parametro certo (essa funcao nao aceita o arquivo diretamente)
-                academic_data = extract_approved_courses(uploaded_file)
-                st.session_state['academic_data'] = academic_data
+                # TODO: Passar o parametro certo (essa funcao nao aceita o arquivo diretamente, aceita o caminho)
+                report = analyze_course_completion(uploaded_file)
+                approved_courses = report['materias_aprovadas']
+                # st.session_state['academic_data'] = academic_data
+
+                st.write("### Resultado da Análise")
+                st.write(approved_courses)
+                
         else:
             st.error("Erro: Por favor, faça o upload de um arquivo PDF válido antes de processar.")
     
-    # TODO: Comparar o acdemic_data com a tabela de empresas
+    # TODO: Comparar o academic_data com a tabela de empresas
 
     # TODO: Exibir as materias que podem ser cortadas
 
