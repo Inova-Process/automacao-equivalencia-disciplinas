@@ -1,0 +1,354 @@
+[
+    {
+        "requires": [
+            "FIM230"
+        ],
+        "grants": [
+            "FIW230"
+        ]
+    },
+    {
+        "requires": [
+            "FIT112"
+        ],
+        "grants": [
+            "FIW125"
+        ]
+    },
+    {
+        "requires": [
+            "ICP020"
+        ],
+        "grants": [
+            "ICP533"
+        ]
+    },
+    {
+        "requires": [
+            "ICP020"
+        ],
+        "grants": [
+            "MAB533"
+        ]
+    },
+    {
+        "requires": [
+            "ICP131",
+            "ICP141"
+        ],
+        "grants": [
+            "ICP120"
+        ]
+    },
+    {
+        "requires": [
+            "ICP131",
+            "ICP141"
+        ],
+        "grants": [
+            "MAB120"
+        ]
+    },
+    {
+        "requires": [
+            "ICP131",
+            "ICP141"
+        ],
+        "grants": [
+            "CMT012",
+            "MAB121"
+        ]
+    },
+    {
+        "requires": [
+            "ICP131",
+            "ICP141"
+        ],
+        "grants": [
+            "CMT012",
+            "ICP121"
+        ]
+    },
+    {
+        "requires": [
+            "ICP131",
+            "ICP141"
+        ],
+        "grants": [
+            "CMT012",
+            "ICP124"
+        ]
+    },
+    {
+        "requires": [
+            "ICP141"
+        ],
+        "grants": [
+            "ICP210"
+        ]
+    },
+    {
+        "requires": [
+            "ICP141"
+        ],
+        "grants": [
+            "MAB210"
+        ]
+    },
+    {
+        "requires": [
+            "ICP141"
+        ],
+        "grants": [
+            "MAB221"
+        ]
+    },
+    {
+        "requires": [
+            "ICP141"
+        ],
+        "grants": [
+            "CMT021"
+        ]
+    },
+    {
+        "requires": [
+            "ICP211"
+        ],
+        "grants": [
+            "ICP310"
+        ]
+    },
+    {
+        "requires": [
+            "ICP211"
+        ],
+        "grants": [
+            "MAB310"
+        ]
+    },
+    {
+        "requires": [
+            "ICP230"
+        ],
+        "grants": [
+            "ICP238"
+        ]
+    },
+    {
+        "requires": [
+            "ICP230"
+        ],
+        "grants": [
+            "ICP248"
+        ]
+    },
+    {
+        "requires": [
+            "ICP230"
+        ],
+        "grants": [
+            "MAB238"
+        ]
+    },
+    {
+        "requires": [
+            "ICP230"
+        ],
+        "grants": [
+            "MAB248"
+        ]
+    },
+    {
+        "requires": [
+            "ICP246"
+        ],
+        "grants": [
+            "ICP355",
+            "ICP366"
+        ]
+    },
+    {
+        "requires": [
+            "ICP246"
+        ],
+        "grants": [
+            "MAB355",
+            "MAB366"
+        ]
+    },
+    {
+        "requires": [
+            "ICP355"
+        ],
+        "grants": [
+            "ICP246",
+            "MAB366"
+        ]
+    },
+    {
+        "requires": [
+            "ICP355"
+        ],
+        "grants": [
+            "MAB246",
+            "MAB366"
+        ]
+    },
+    {
+        "requires": [
+            "ICP366"
+        ],
+        "grants": [
+            "ICP246",
+            "MAB355"
+        ]
+    },
+    {
+        "requires": [
+            "ICP366"
+        ],
+        "grants": [
+            "MAB246",
+            "MAB355"
+        ]
+    },
+    {
+        "requires": [
+            "MAC128"
+        ],
+        "grants": [
+            "MAC238"
+        ]
+    },
+    {
+        "requires": [
+            "MAC238"
+        ],
+        "grants": [
+            "MAB240",
+            "MAB351"
+        ]
+    },
+    {
+        "requires": [
+            "MAE125"
+        ],
+        "grants": [
+            "MAE235"
+        ]
+    },
+    {
+        "requires": [
+            "MAE125"
+        ],
+        "grants": [
+            "MAB241"
+        ]
+    },
+    {
+        "requires": [
+            "MAE125"
+        ],
+        "grants": [
+            "MAE124",
+            "MAE235"
+        ]
+    },
+    {
+        "requires": [
+            "MAE235"
+        ],
+        "grants": [
+            "MAE125"
+        ]
+    },
+    {
+        "requires": [
+            "MAE235"
+        ],
+        "grants": [
+            "MAE124",
+            "MAE125"
+        ]
+    },
+    {
+        "requires": [
+            "ICP101"
+        ],
+        "grants": [
+            "MAB101"
+        ]
+    },
+    {
+        "requires": [
+            "ICP246"
+        ],
+        "grants": [
+            "ICP366",
+            "MAB355"
+        ]
+    },
+    {
+        "requires": [
+            "ICP246"
+        ],
+        "grants": [
+            "ICP355",
+            "MAB366"
+        ]
+    },
+    {
+        "requires": [
+            "MAE111"
+        ],
+        "grants": [
+            "MAC118"
+        ]
+    },
+    {
+        "requires": [
+            "ICP131"
+        ],
+        "grants": [
+            "ICP037",
+            "ICP121"
+        ]
+    },
+    {
+        "requires": [
+            "ICP131"
+        ],
+        "grants": [
+            "ICP037",
+            "ICP114"
+        ]
+    },
+    {
+        "requires": [
+            "ICP131"
+        ],
+        "grants": [
+            "ICP037",
+            "ICP124"
+        ]
+    },
+    {
+        "requires": [
+            "ICP131"
+        ],
+        "grants": [
+            "ICP037",
+            "MAW112"
+        ]
+    },
+    {
+        "requires": [
+            "ICP131"
+        ],
+        "grants": [
+            "ICP037",
+            "ICP130"
+        ]
+    }
+]
