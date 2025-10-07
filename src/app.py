@@ -78,4 +78,4 @@ def main():
     # TODO: Exibir as materias que podem ser cortadas
 
 if __name__ == "__main__":
-    main()
+    main()  
