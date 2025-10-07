@@ -16,6 +16,70 @@ def validate_boa(uploaded_file) -> bool:
         return False
 
 
+def extract_student_data_from_boa(pdf_path: str) -> Dict[str, Any]:
+    """
+    Reads a BOA PDF file, extracts the student's full name, and lists all
+    approved courses from all pages.
+
+    Args:
+        pdf_path: The file path to the BOA PDF document.
+
+    Returns:
+        A dictionary containing the student's name and a list of approved
+        course codes.
+        Example:
+        {
+            "student_name": "NOME COMPLETO DO ALUNO",
+            "approved_courses": ["ICP131", "MAE111", ...]
+        }
+    """
+    full_text = ""
+    student_name = "Not found"
+    approved_courses_set: Set[str] = set()
+
+    # Codes to be ignored in the final list
+    codes_to_exclude: Set[str] = {"ICPZ55", "ICPX06"}
+    
+    # Updated list of course prefixes to search for
+    course_prefixes = ['CMT', 'FIM', 'FIT', 'FIW', 'ICP', 'MAB', 'MAC', 'MAE', 'MAW']
+    
+    try:
+        with pdfplumber.open(pdf_path) as pdf:
+            # Extract text from all pages
+            for page in pdf.pages:
+                page_text = page.extract_text()
+                if page_text:
+                    full_text += page_text + "\n"
+
+            
+            name_match = re.search(r"Aluno\n\s*([A-Z\s]+)\n", full_text)
+            if name_match:
+                student_name = name_match.group(1).strip()
+
+             
+            prefixes_pattern = "|".join(course_prefixes)
+            approved_pattern = re.compile(
+                rf"^((?:{prefixes_pattern})\w+)\s+.*?\s+[\d\.]+\s*$", 
+                re.MULTILINE
+            )
+
+            matches = approved_pattern.findall(full_text)
+            for course_code in matches:
+                if course_code.upper() not in codes_to_exclude:
+                    approved_courses_set.add(course_code.upper())
+
+        
+        final_report = {
+            "student_name": student_name,
+            "approved_courses": sorted(list(approved_courses_set))
+        }
+
+        return final_report
+
+    except Exception as e:
+        return {"error": f"An error occurred while processing the PDF: {e}"}
+
+
 def extract_academic_data_from_boa(pdf_path: str) -> dict:
     full_text = ""
 
@@ -61,21 +125,6 @@ def extract_academic_data_from_boa(pdf_path: str) -> dict:
     return extracted_data
 
 
-def extract_required_courses(page_text: str) -> Set[str]:
-    codes_to_exclude = {"ICPZ55", "ICPX06"}
-    
-    # Pattern to find required courses from periods 1-4.
-    required_pattern = r"^((?:ICP|MAE|MAD|ICPX|ICPZ)\w+)\s+.*?\s+(?:\d+\.\d|NCC)\s+\d+\s+([1-4])"
-    
-    required_set = set()
-    
-    matches = re.findall(required_pattern, page_text, re.MULTILINE)
-    for match in matches:
-        course_code = match[0].upper()
-        if course_code not in codes_to_exclude:
-            required_set.add(course_code)
-            
-    return required_set
 
 
 def extract_approved_courses(page_text: str) -> Set[str]:
@@ -101,24 +150,7 @@ def extract_approved_courses(page_text: str) -> Set[str]:
     return approved_set
 
 
-def check_course_completion_status(required_courses: Set[str], approved_courses: Set[str]) -> Dict[str, Any]:
-    """
-    Compares the set of required courses with the set of approved courses.
-
-    :param required_courses: A set of required course codes.
-    :param approved_courses: A set of approved course codes.
-    :return: A dictionary containing the list of pending courses and a boolean indicating success.
-    """
-    pending_courses_set = required_courses - approved_courses
-    
-    has_completed_all = not pending_courses_set  # True if the pending set is empty
-    
-    return {
-        "materias_pendentes": sorted(list(pending_courses_set)),
-        "cumpriu_todas_materias": has_completed_all
-    }
-
-
+ 
 def analyze_course_completion(file_path: str) -> Dict[str, Any]:
     """
     Orchestrates the full process of extracting and comparing course data from a BOA PDF.
