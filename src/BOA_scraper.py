@@ -125,8 +125,6 @@ def extract_academic_data_from_boa(pdf_path: str) -> dict:
     return extracted_data
 
 
-
-
 def extract_approved_courses(page_text: str) -> Set[str]:
     """
     Extracts all approved course codes from the text.
