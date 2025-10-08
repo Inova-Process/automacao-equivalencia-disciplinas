@@ -4,16 +4,14 @@ from PIL import Image
 import os
 
 # Funções de backend
-<<<<<<< HEAD
-from boa_scraper import extract_approved_courses, analyze_course_completion
-=======
-from BOA_scraper import extract_student_data_from_boa
->>>>>>> e5c2d26352af53b105d852a45db579c7b86ec58a
+from boa_scraper import extract_student_data_from_boa
 
 # Componentes da interface
 from components.sidebar import render_sidebar
 from components.header import render_header
 from components.file_upload import file_upload
+
+from equivalence_analyzer import run_equivalence_analysis
 
 
 def main():
@@ -24,12 +22,13 @@ def main():
     
     # --- Configuração da Página ---  
     st.set_page_config(
-        page_title="Validador de Estágios",
+        page_title="Equivalência de Disciplinas",
         page_icon=FAVICON_PATH,
         layout="centered"
     )
 
     # --- Sidebar ---
+    # TODO: Modificar os textos da sidebar
     render_sidebar()
 
     # --- Cabeçalho com Logo ---
@@ -42,26 +41,11 @@ def main():
     if st.button("Analisar Equivalências", type="primary", use_container_width=True):
         if uploaded_file is not None:            
             with st.spinner('Analisando documento... Por favor, aguarde.'):
-<<<<<<< HEAD
-                # TODO: Passar o parametro certo (essa funcao nao aceita o arquivo diretamente, aceita o caminho)
-                report = analyze_course_completion(uploaded_file)
-                approved_courses = report['materias_aprovadas']
-                # st.session_state['academic_data'] = academic_data
-
-                st.write("### Resultado da Análise")
-                st.write(approved_courses)
-                
-=======
-                # TODO: Passar o parametro certo (essa funcao nao aceita o arquivo diretamente)
                 student_data = extract_student_data_from_boa(uploaded_file)
+                # st.write(student_data)
                 st.session_state['student_data'] = student_data
->>>>>>> e5c2d26352af53b105d852a45db579c7b86ec58a
         else:
             st.error("Erro: Por favor, faça o upload de um arquivo PDF válido antes de processar.")
-    
-    # TODO: Comparar o academic_data com a tabela de empresas
-
-    # TODO: Exibir as materias que podem ser cortadas
 
 # --- 3. Exibição dos Resultados (após a análise) ---
     # Verifica se os dados do aluno já foram processados e estão na sessão.
@@ -74,23 +58,39 @@ def main():
         else:
             student_name = data.get("student_name", "Nome não encontrado")
             approved_courses = data.get("approved_courses", [])
-            
+
+            # Dados de teste
+            approved_courses = {
+                                    'ICP120',
+                                    'MAB120',
+                                    'MAB624',
+                                    'ICP230'
+                                }
+
             st.success("Análise concluída com sucesso!")
-            
+
             # Exibe o nome do aluno de forma destacada
-            st.subheader(f"Análise para: {student_name}")
+            st.subheader(f"Aluno: {student_name}")
+
+            # Inserir logica de comparacao aqui
+            equivalence_results = run_equivalence_analysis(approved_courses)
+            
+            if equivalence_results:
+                st.markdown(f"##### Disciplinas que podem ser cortadas: {len(equivalence_results)}")
+                with st.expander("Clique para ver as disciplinas que podem ser cortadas"):
+                    for course in equivalence_results:
+                        st.markdown(f"- `{course}`")
+            
 
             # Usa um expander para não poluir a tela com a lista de matérias
-            with st.expander(f"Clique para ver as {len(approved_courses)} matérias aprovadas"):
-                # Divide em colunas para melhor visualização
-                num_columns = 3
-                columns = st.columns(num_columns)
-                for i, course in enumerate(approved_courses):
-                    with columns[i % num_columns]:
-                        st.markdown(f"- `{course}`")
+            # with st.expander(f"Clique para ver as {len(approved_courses)} matérias aprovadas"):
+            #     # Divide em colunas para melhor visualização
+            #     num_columns = 3
+            #     columns = st.columns(num_columns)
+            #     for i, course in enumerate(approved_courses):
+            #         with columns[i % num_columns]:
+            #             st.markdown(f"- `{course}`")
 
-    # TODO: Comparar o student_data com a tabela de empresas
-    # TODO: Exibir as materias que podem ser cortadas
 
 if __name__ == "__main__":
     main()  
