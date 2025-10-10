@@ -10,6 +10,7 @@ from boa_scraper import extract_student_data_from_boa
 from components.sidebar import render_sidebar
 from components.header import render_header
 from components.file_upload import file_upload
+from components.select_university import select_university
 
 from equivalence_analyzer import run_equivalence_analysis
 
@@ -33,6 +34,25 @@ def main():
 
     # --- Cabeçalho com Logo ---
     render_header(LOGO_PATH)
+
+    # --- Selecionar uma das Universidades Suportadas ---
+    universities = [
+        "UFRJ",
+        "UFF",
+        "UFRGS",
+        "UNICARIOCA",
+    ]
+
+    university = select_university(universities)
+
+    # TODO: Implementar logica condicional baseada na universidade escolhida
+    # TODO: Implementar as classes referentes a cada universidade
+    objects = {
+        "UFRJ": "objeto_ufrj",
+        "UFF": "objeto_uff",
+        "UFRGS": "objeto_ufrgs",
+        "UNICARIOCA": "objeto_unicarioca",
+    }
 
     # --- Componentes da Interface ---
     uploaded_file = file_upload()
