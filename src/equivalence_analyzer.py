@@ -49,7 +49,7 @@ def find_possible_equivalences(
 # run_equivalence_analysis ajustada para aceitar o parâmetro 'debug'
 def run_equivalence_analysis(
     approved_courses: Set[str],
-    rules_file_path: str = r'C:\Users\fport\OneDrive\Desktop\Coding\projetos\inova-process\automacao-equivalencia-disciplinas\data\equivalencias.json',
+    rules_file_path: str,
     debug: bool = False
 ) -> List[str]:
     """
