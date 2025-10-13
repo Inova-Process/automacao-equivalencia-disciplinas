@@ -12,4 +12,4 @@ def render_sidebar():
     with st.sidebar:
         st.header("ℹ️ Sobre o Sistema")
         description_card()   
-        st.info("Esta ferramenta está em desenvolvimento. Em caso de dúvidas, contate a comissão estagio@ic.ufrj.br.")
+        st.info("Esta ferramenta está em desenvolvimento. Em caso de dúvidas, contate a secretaria secgrad@ic.ufrj.br.")
