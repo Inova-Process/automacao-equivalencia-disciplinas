@@ -1,4 +1,0 @@
-Recebe o BOA
-Extrai as Matérias já feitas
-Compara com a tabela de equivalencia
-Retorna as materias que poderiam ser cortadas

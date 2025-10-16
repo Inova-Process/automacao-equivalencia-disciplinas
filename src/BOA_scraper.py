@@ -52,7 +52,7 @@ def extract_student_data_from_boa(pdf_path: str) -> Dict[str, Any]:
                     full_text += page_text + "\n"
 
             
-            name_match = re.search(r"Aluno\n\s*([A-Z\s]+)\n", full_text)
+            name_match = re.search(r"Emissão\n\s*([A-Z\s]+)", full_text)
             if name_match:
                 student_name = name_match.group(1).strip()
 
@@ -70,7 +70,7 @@ def extract_student_data_from_boa(pdf_path: str) -> Dict[str, Any]:
 
         
         final_report = {
-            "student_name": student_name,
+            "student_name": student_name.title(),
             "approved_courses": sorted(list(approved_courses_set))
         }
 
@@ -123,8 +123,6 @@ def extract_academic_data_from_boa(pdf_path: str) -> dict:
             extracted_data[key] = "Not found"
 
     return extracted_data
-
-
 
 
 def extract_approved_courses(page_text: str) -> Set[str]:

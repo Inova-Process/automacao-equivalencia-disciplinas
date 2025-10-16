@@ -9,7 +9,7 @@ def render_header(logo_path):
     with col2:
         st.image(logo_path, width=200)
 
-    st.title("Validador da Comissão de Estágio")
-    st.caption("Uma ferramenta para agilizar a validação de estágios do Instituto de Computração da UFRJ e apoiar a comissão de professores.")
+    st.title("Equivalência de Disciplinas")
+    st.caption("Uma ferramenta para auxiliar e automatizar a comissão de equivalência de disciplinas.")
 
     st.divider()

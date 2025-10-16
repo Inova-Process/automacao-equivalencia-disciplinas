@@ -23,7 +23,7 @@ def file_upload():
     """
     # O container agora faz parte do componente
     with st.container(border=True):
-        st.header("1. Faça o upload do BOA em PDF")
+        st.header("2. Faça o upload do Histórico Acadêmico em PDF")
         uploaded_file = st.file_uploader(
             "Anexe o Boletim de Orientação Acadêmica do aluno",
             type="pdf",

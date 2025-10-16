@@ -1,41 +1,42 @@
 import streamlit as st
 
 def description_card():
+    """
+    Exibe um card de descrição completo para o sistema de análise de equivalências,
+    detalhando o funcionamento atual, a evolução da arquitetura e melhorias futuras.
+    """
     with st.expander("ℹ️ Como funciona o sistema? (Clique para expandir)"):
         st.markdown("""
-        Este sistema foi projetado para simplificar e acelerar a verificação de elegibilidade de estágios, seguindo um fluxo de trabalho claro e eficiente:
+        Este sistema foi projetado para automatizar a verificação de equivalência de disciplinas de forma simples e rápida:
         
-        - **1. Upload do BOA:** O processo começa com o upload do **Boletim de Orientação Acadêmica (BOA)**, o histórico escolar oficial do aluno. O sistema primeiro valida se o arquivo é um BOA autêntico.
+        - **1. Upload do Histórico:** O processo começa com o upload do seu histórico escolar em formato PDF.
         
-        - **2. Seleção da Empresa:** Em seguida, o usuário seleciona a empresa conveniada onde o estágio será realizado. Caso a empresa não esteja na lista, é possível digitar o nome manualmente.
+        - **2. Seleção da Universidade:** Em seguida, você seleciona a sua universidade de origem em uma lista.
         
-        - **3. Validação Automática:** Com um clique, o sistema lê o PDF, extrai todos os dados acadêmicos relevantes (CR, períodos integralizados, horas de extensão, matérias obrigatórias, empresas conveniadas) e os compara com as regras de elegibilidade do estágio.
-        
-        - **4. Relatório Instantâneo:** Imediatamente após a análise, um relatório visual é gerado, indicando se o aluno está **APTO** ou **INAPTO** e detalhando o resultado de cada critério individual.
+        - **3. Análise e Comparação:** Com um clique, o sistema lê as matérias cursadas no seu histórico e as compara com uma base de dados interna (um arquivo JSON) que define as regras de equivalência para gerar um relatório preliminar.
         """)
 
-    with st.expander("🎯 Próximos Passos e Evolução do Processo"):
+    with st.expander("🎯 Próximos Passos: Evolução da Arquitetura"):
         st.markdown("""
-        Para tornar a automação ainda mais completa, os próximos passos envolvem a análise de documentos adicionais do processo de estágio:
+        Para aumentar a precisão e facilitar a inclusão de novas instituições, o próximo passo é refatorar a lógica de processamento. A estratégia é:
         
-        - **1. Leitura de Documentos do Estágio:** Implementar o upload e a leitura automatizada de três novos documentos:
-            - **Plano de Atividades do Estagiário**
-            - **Termo de Compromisso de Estágio (TCE)**
-            - **Cópia da Apólice de Seguro de Acidentes Pessoais**
+        - **1. Implementar Classes por Universidade:** Criar uma `classe` em Python específica para cada universidade parceira.
+        
+        - **2. Lógica Adaptada:** Cada classe conterá a lógica customizada para:
+            - **Ler o layout único** do histórico escolar daquela instituição.
+            - **Interpretar sistemas de notas** e créditos específicos.
+            - **Tratar as particularidades** dos nomes das disciplinas.
             
-        - **2. Validações Cruzadas:** Utilizar os dados extraídos desses novos documentos para realizar verificações essenciais:
-            - **Carga Horária Semanal:** Confirmar se o plano de atividades especifica **20 horas semanais**.
-            - **Prazo de Início:** Verificar se a data de início do estágio no TCE respeita o prazo de **15 dias de antecedência** da data de submissão.
-            - **Preenchimento Automático:** Extrair o nome da empresa diretamente do TCE para preencher o campo de seleção automaticamente.
+        - **3. Benefícios:** Essa abordagem torna o sistema **mais robusto**, **preciso** e **escalável**, permitindo adicionar suporte a uma nova universidade de forma organizada, sem impactar as já existentes.
         """)
 
     with st.expander("🚀 Ideias de Melhorias Futuras"):
         st.markdown("""
-        Além dos próximos passos, planejamos outras funcionalidades para aprimorar a ferramenta a longo prazo:
+        Além da evolução da arquitetura, planejamos outras funcionalidades para aprimorar a ferramenta a longo prazo:
         
-        - **📄 Geração de Relatório em PDF:** Adicionar um botão para exportar o relatório de elegibilidade final para um arquivo PDF formatado, pronto para ser arquivado ou enviado.
+        - **📄 Geração de Parecer em PDF:** Adicionar um botão para exportar o relatório final da análise para um arquivo PDF formatado, servindo como parecer oficial da comissão.
         
-        - **⚙️ Banco de Dados de Empresas:** Integrar com um banco de dados real para gerenciar as empresas conveniadas, permitindo adicionar e editar informações diretamente pelo sistema.
+        - **⚙️ Banco de Dados de Decisões:** Criar um histórico de equivalências já analisadas. Se uma disciplina da Instituição X já foi deferida, o sistema pode aprovar automaticamente novos pedidos idênticos.
         
-        - **📧 Notificações por E-mail:** Implementar o envio de um e-mail automático para a comissão de estágio ou para o aluno com o resultado da análise.
+        - **📧 Notificações por E-mail:** Implementar o envio de um e-mail automático para o aluno e para os membros da comissão com o resultado da análise ou solicitando informações adicionais.
         """)

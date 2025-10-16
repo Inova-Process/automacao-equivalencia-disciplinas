@@ -1,15 +1,19 @@
-import pandas as pd
 import streamlit as st
-from PIL import Image 
 import os
 
 # Funções de backend
-from boa_scraper import extract_approved_courses, analyze_course_completion
+from data_loader import load_spreadsheet, get_university_list
+from core import find_equivalencies
 
 # Componentes da interface
 from components.sidebar import render_sidebar
 from components.header import render_header
-from components.file_upload import file_upload
+from components.spreadsheet_uploader import render_spreadsheet_uploader
+from components.select_university import select_university
+
+# TODO: Futuramente, importar a função de gerar PDF
+# from src.pdf_generator import create_pdf_report
+
 
 
 def main():
@@ -20,16 +24,42 @@ def main():
     
     # --- Configuração da Página ---  
     st.set_page_config(
-        page_title="Validador de Estágios",
+        page_title="Analisador de Equivalências",
         page_icon=FAVICON_PATH,
         layout="centered"
     )
 
-    # --- Sidebar ---
-    render_sidebar()
+    # --- Inicialização do Estado da Aplicação ---
+    if 'spreadsheet_data' not in st.session_state:
+        st.session_state.spreadsheet_data = None
+    if 'analysis_results' not in st.session_state:
+        st.session_state.analysis_results = []
 
-    # --- Cabeçalho com Logo ---
+    # --- Renderização dos Componentes Visuais Estáticos ---
+    # TODO: Modificar os textos da sidebar
+    render_sidebar()
     render_header(LOGO_PATH)
+
+
+    # --- Selecionar uma das Universidades Suportadas ---
+    # TODO: Implementar logica condicional baseada na universidade escolhida
+    # TODO: Implementar as classes referentes a cada universidade
+    universities_classes = {
+        "UFRJ": UFRJ,
+        "UFF": "objeto_uff",
+        "UFRGS": "objeto_ufrgs",
+        "UNICARIOCA": "objeto_unicarioca",
+    }
+
+    university = select_university(universities_classes.keys())
+
+    # Warning temporario
+    if university != "UFRJ":
+        st.warning("⚠️ Atenção: Atualmente, apenas a UFRJ está totalmente suportada. As outras universidades serão implementadas em breve.")
+
+    st.markdown("---")
+
+    selected_class = universities_classes.get(university, None)
 
     # --- Componentes da Interface ---
     uploaded_file = file_upload()
@@ -48,10 +78,6 @@ def main():
                 
         else:
             st.error("Erro: Por favor, faça o upload de um arquivo PDF válido antes de processar.")
-    
-    # TODO: Comparar o academic_data com a tabela de empresas
-
-    # TODO: Exibir as materias que podem ser cortadas
 
 # --- 3. Exibição dos Resultados (após a análise) ---
     # Verifica se os dados do aluno já foram processados e estão na sessão.
@@ -62,25 +88,43 @@ def main():
         if "error" in data:
             st.error(f"Ocorreu um erro ao processar o PDF: {data['error']}")
         else:
-            student_name = data.get("student_name", "Nome não encontrado")
+            student_name = data.get("nome_aluno", "Nome não encontrado")
             approved_courses = data.get("approved_courses", [])
-            
+
+            # Dados de teste
+            # approved_courses = {
+            #                         'ICP120',
+            #                         'MAB120',
+            #                         'MAB624',
+            #                         'ICP230'
+            #                     }
+
             st.success("Análise concluída com sucesso!")
-            
+
             # Exibe o nome do aluno de forma destacada
-            st.subheader(f"Análise para: {student_name}")
+            st.subheader(f"Aluno: {student_name}")
+
+            # Inserir logica de comparacao aqui
+            equivalence_results = run_equivalence_analysis(approved_courses, r'data/equivalencias_ufrj.json', debug=False)
+            
+            if equivalence_results:
+                st.markdown(f"##### Disciplinas que podem ser cortadas: {len(equivalence_results)}")
+                with st.expander("Clique para ver as disciplinas que podem ser cortadas"):
+                    for course in equivalence_results:
+                        st.markdown(f"- `{course}`")
+            else:
+                st.markdown("Nenhuma disciplina pode ser cortada com base nas equivalências atuais.")
+            
 
             # Usa um expander para não poluir a tela com a lista de matérias
-            with st.expander(f"Clique para ver as {len(approved_courses)} matérias aprovadas"):
-                # Divide em colunas para melhor visualização
-                num_columns = 3
-                columns = st.columns(num_columns)
-                for i, course in enumerate(approved_courses):
-                    with columns[i % num_columns]:
-                        st.markdown(f"- `{course}`")
+            # with st.expander(f"Clique para ver as {len(approved_courses)} matérias aprovadas"):
+            #     # Divide em colunas para melhor visualização
+            #     num_columns = 3
+            #     columns = st.columns(num_columns)
+            #     for i, course in enumerate(approved_courses):
+            #         with columns[i % num_columns]:
+            #             st.markdown(f"- `{course}`")
 
-    # TODO: Comparar o student_data com a tabela de empresas
-    # TODO: Exibir as materias que podem ser cortadas
 
 if __name__ == "__main__":
     main()  
