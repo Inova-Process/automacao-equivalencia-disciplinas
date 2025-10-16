@@ -12,7 +12,7 @@ from components.spreadsheet_uploader import render_spreadsheet_uploader
 from components.report_card import report_card_compact
 
 # TODO: Futuramente, importar a função de gerar PDF
-# from src.pdf_generator import create_pdf_report
+from pdf_generator import create_pdf_bytes
 
 
 
@@ -100,16 +100,26 @@ def main():
         # que retorna a flag 'has_not_found' para nós.
         has_not_found = report_card_compact(st.session_state.analysis_results)
 
-        # --- ETAPA 6: GERAÇÃO DO PDF (CONDICIONAL) ---
         st.markdown("---")
+
+        # --- ETAPA 6: GERAÇÃO DO PDF (CONDICIONAL) ---
+
+        
+
         # A lógica abaixo agora funciona com a flag retornada pelo componente.
         if not has_not_found:
             st.subheader("3. Gerar Relatório")
             st.success("Todas as disciplinas foram encontradas! Você já pode gerar o relatório.")
-            if st.button("Gerar Relatório em PDF", use_container_width=True):
-                st.info("Funcionalidade de gerar PDF a ser implementada na próxima etapa.")
-                # pdf_bytes = create_pdf_report(st.session_state.analysis_results, ...)
-                # st.download_button(...)
+
+            pdf_bytes = create_pdf_bytes(st.session_state.analysis_results)
+            st.download_button(
+                label="Baixar Relatório em PDF",
+                data=pdf_bytes,
+                file_name="relatorio_equivalencia.pdf",
+                mime="application/pdf",
+                use_container_width=True
+            )
+
         else:
             st.error("⚠️ **Atenção:** Algumas disciplinas não foram encontradas na planilha. O relatório final não pode ser gerado até que todas as disciplinas sejam verificadas manualmente ou os códigos corrigidos.")
 
