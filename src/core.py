@@ -21,42 +21,46 @@ def find_equivalencies(
     """
     results = []
     
-    # 1. Pega o DataFrame da universidade correta
     university_df = all_data.get(selected_university)
     if university_df is None:
         return [{"error": f"Dados para a universidade '{selected_university}' não encontrados."}]
 
-    # 2. Limpa e separa os códigos de entrada
+    # 1. Prepara os códigos de entrada do usuário em um CONJUNTO (set) para facilitar a remoção.
     cleaned_str = course_codes_str.replace(",", " ").replace("\n", " ")
-    input_codes = [code.strip().upper() for code in cleaned_str.split() if code.strip()]
+    # Usamos um set para que a remoção de itens seja mais eficiente
+    input_codes_set = {code.strip().upper() for code in cleaned_str.split() if code.strip()}
 
-    # 3. Itera sobre cada código que o usuário inseriu
-    for code in input_codes:
-        found = False
-        for index, row in university_df.iterrows():
-            origin_codes = str(row['Códigos Origem'])
-                
-            if code in [c.strip().upper() for c in origin_codes.split('+')]:
-                # 4. Se encontrou, monta um dicionário com os resultados
-                result_details = {
-                    "input_code": code,
-                    "status": "Encontrado", 
-                    "origin_codes": row['Códigos Origem'],
-                    "origin_names": row['Nomes Origem'],
-                    "is_equivalent": row['Equivalente?'],
-                    "dest_codes": row['Códigos UFRJ Destino'],
-                    "dest_names": row['Nomes UFRJ Destino'],
-                    "justification": row['Justificativa Parecer']
-                }
-                results.append(result_details)
-                found = True
-                break 
+    # 2. Itera primeiro sobre as REGRAS da planilha (cada linha do DataFrame)
+    for index, rule in university_df.iterrows():
+        origin_codes_str = str(rule['Códigos Origem'])
+        # Pega a lista de códigos necessários para ESTA regra
+        required_codes = {c.strip().upper() for c in origin_codes_str.split('+')}
         
-        # 5. Se o loop terminou e não encontrou, registra como "Não Encontrado"
-        if not found:
-            results.append({
-                "input_code": code,
-                "status": "Não Encontrado na Planilha"  
-            })
+        # 3. Verifica se a regra PODE ser aplicada:
+        # A regra só é válida se TODOS os seus códigos requeridos estiverem no input do usuário
+        if required_codes.issubset(input_codes_set):
+            # A regra foi acionada!
+            result_details = {
+                "status": "Encontrado",
+                "origin_codes": rule['Códigos Origem'],
+                "origin_names": rule['Nomes Origem'],
+                "is_equivalent": rule['Equivalente?'],
+                "dest_codes": rule['Códigos UFRJ Destino'],
+                "dest_names": rule['Nomes UFRJ Destino'],
+                "justification": rule['Justificativa Parecer']
+            }
+            results.append(result_details)
+            
+            # 4. CRUCIAL: Se a regra foi aplicada, remove os códigos usados do conjunto de input.
+            # Isso impede que eles sejam usados para acionar outra regra.
+            input_codes_set -= required_codes
+
+    # 5. Adiciona os códigos que sobraram no conjunto como 'Não Encontrado na Planilha'
+    # O que sobrou aqui são os códigos que o usuário digitou mas que não se encaixaram em nenhuma regra.
+    for remaining_code in sorted(list(input_codes_set)): # sorted para ordem consistente
+        results.append({
+            "input_code": remaining_code,
+            "status": "Não Encontrado na Planilha"
+        })
 
     return results
