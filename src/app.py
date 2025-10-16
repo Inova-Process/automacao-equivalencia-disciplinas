@@ -9,7 +9,7 @@ from core import find_equivalencies
 from components.sidebar import render_sidebar
 from components.header import render_header
 from components.spreadsheet_uploader import render_spreadsheet_uploader
-from components.select_university import select_university
+from components.report_card import report_card_compact
 
 # TODO: Futuramente, importar a função de gerar PDF
 # from src.pdf_generator import create_pdf_report
@@ -36,95 +36,82 @@ def main():
         st.session_state.analysis_results = []
 
     # --- Renderização dos Componentes Visuais Estáticos ---
-    # TODO: Modificar os textos da sidebar
     render_sidebar()
+    # TODO: Modificar os textos da sidebar
     render_header(LOGO_PATH)
-
-
-    # --- Selecionar uma das Universidades Suportadas ---
-    # TODO: Implementar logica condicional baseada na universidade escolhida
-    # TODO: Implementar as classes referentes a cada universidade
-    universities_classes = {
-        "UFRJ": UFRJ,
-        "UFF": "objeto_uff",
-        "UFRGS": "objeto_ufrgs",
-        "UNICARIOCA": "objeto_unicarioca",
-    }
-
-    university = select_university(universities_classes.keys())
-
-    # Warning temporario
-    if university != "UFRJ":
-        st.warning("⚠️ Atenção: Atualmente, apenas a UFRJ está totalmente suportada. As outras universidades serão implementadas em breve.")
-
+    st.title("Analisador de Equivalência de Disciplinas")
     st.markdown("---")
 
-    selected_class = universities_classes.get(university, None)
+    # --- ETAPA 1: UPLOAD E VALIDAÇÃO DA PLANILHA ---
+    uploaded_file = render_spreadsheet_uploader()
+    #TODO subheader 1
 
-    # --- Componentes da Interface ---
-    uploaded_file = file_upload()
+    if uploaded_file and st.session_state.spreadsheet_data is None:
+        st.session_state.spreadsheet_data = load_spreadsheet(uploaded_file)
+        st.session_state.analysis_results = []
+   
+    # --- ETAPA 2 e 3: SELEÇÃO DA UNIVERSIDADE E ENTRADA DOS CÓDIGOS ---
 
-    # --- Lógica e Exibição dos Resultados ---
-    if st.button("Analisar Equivalências", type="primary", use_container_width=True):
-        if uploaded_file is not None:            
-            with st.spinner('Analisando documento... Por favor, aguarde.'):
-                # TODO: Passar o parametro certo (essa funcao nao aceita o arquivo diretamente, aceita o caminho)
-                report = analyze_course_completion(uploaded_file)
-                approved_courses = report['materias_aprovadas']
-                # st.session_state['academic_data'] = academic_data
+    #TODO botar nome aluno
 
-                st.write("### Resultado da Análise")
-                st.write(approved_courses)
-                
-        else:
-            st.error("Erro: Por favor, faça o upload de um arquivo PDF válido antes de processar.")
-
-# --- 3. Exibição dos Resultados (após a análise) ---
-    # Verifica se os dados do aluno já foram processados e estão na sessão.
-    if 'student_data' in st.session_state:
-        data = st.session_state['student_data']
+    if st.session_state.spreadsheet_data:
+        st.subheader("2. Selecione a Universidade e Insira os Códigos")
         
-        # Verifica se houve algum erro durante a extração
-        if "error" in data:
-            st.error(f"Ocorreu um erro ao processar o PDF: {data['error']}")
-        else:
-            student_name = data.get("nome_aluno", "Nome não encontrado")
-            approved_courses = data.get("approved_courses", [])
+        col1, col2 = st.columns([1, 2])
+        
+        #TODO testar visualização em colunas
+        with col1:
+            st.markdown("**Universidade de Origem**")
+            university_list = get_university_list(st.session_state.spreadsheet_data)
+            selected_university = st.selectbox(
+                "Universidade de Origem",
+                options=university_list,
+                label_visibility="collapsed" 
+            )
 
-            # Dados de teste
-            # approved_courses = {
-            #                         'ICP120',
-            #                         'MAB120',
-            #                         'MAB624',
-            #                         'ICP230'
-            #                     }
+        with col2:
+            st.markdown("**Códigos das Disciplinas de Origem**")
+            course_codes_input = st.text_area(
+                "Códigos das Disciplinas de Origem",
+                height=150,
+                label_visibility="collapsed"  
+            )
+            st.caption("Separe os códigos por espaço, vírgula ou quebra de linha.")
 
-            st.success("Análise concluída com sucesso!")
-
-            # Exibe o nome do aluno de forma destacada
-            st.subheader(f"Aluno: {student_name}")
-
-            # Inserir logica de comparacao aqui
-            equivalence_results = run_equivalence_analysis(approved_courses, r'data/equivalencias_ufrj.json', debug=False)
-            
-            if equivalence_results:
-                st.markdown(f"##### Disciplinas que podem ser cortadas: {len(equivalence_results)}")
-                with st.expander("Clique para ver as disciplinas que podem ser cortadas"):
-                    for course in equivalence_results:
-                        st.markdown(f"- `{course}`")
+    # --- ETAPA 4: BOTÃO DE ANÁLISE ---
+        if st.button("Analisar Equivalências", type="primary", use_container_width=True):
+            if course_codes_input.strip(): # Verifica se o usuário digitou algo
+                with st.spinner("Buscando equivalências..."):
+                    st.session_state.analysis_results = find_equivalencies(
+                        st.session_state.spreadsheet_data,
+                        selected_university,
+                        course_codes_input
+                    )
             else:
-                st.markdown("Nenhuma disciplina pode ser cortada com base nas equivalências atuais.")
-            
+                st.warning("Por favor, insira pelo menos um código de disciplina para analisar.")
 
-            # Usa um expander para não poluir a tela com a lista de matérias
-            # with st.expander(f"Clique para ver as {len(approved_courses)} matérias aprovadas"):
-            #     # Divide em colunas para melhor visualização
-            #     num_columns = 3
-            #     columns = st.columns(num_columns)
-            #     for i, course in enumerate(approved_courses):
-            #         with columns[i % num_columns]:
-            #             st.markdown(f"- `{course}`")
+    # --- ETAPA 5: EXIBIÇÃO DOS RESULTADOS ---
+    if st.session_state.analysis_results:
+        st.markdown("---")
+        st.header("Resultado da Análise")
+        
+        # --- ALTERAÇÃO 1: Substituindo o loop pelo componente ---
+        # A lógica de exibição agora está encapsulada no componente report_card,
+        # que retorna a flag 'has_not_found' para nós.
+        has_not_found = report_card_compact(st.session_state.analysis_results)
 
+        # --- ETAPA 6: GERAÇÃO DO PDF (CONDICIONAL) ---
+        st.markdown("---")
+        # A lógica abaixo agora funciona com a flag retornada pelo componente.
+        if not has_not_found:
+            st.subheader("3. Gerar Relatório")
+            st.success("Todas as disciplinas foram encontradas! Você já pode gerar o relatório.")
+            if st.button("Gerar Relatório em PDF", use_container_width=True):
+                st.info("Funcionalidade de gerar PDF a ser implementada na próxima etapa.")
+                # pdf_bytes = create_pdf_report(st.session_state.analysis_results, ...)
+                # st.download_button(...)
+        else:
+            st.error("⚠️ **Atenção:** Algumas disciplinas não foram encontradas na planilha. O relatório final não pode ser gerado até que todas as disciplinas sejam verificadas manualmente ou os códigos corrigidos.")
 
 if __name__ == "__main__":
-    main()  
+    main()

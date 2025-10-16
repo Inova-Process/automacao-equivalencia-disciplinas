@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from src.data_loader import load_spreadsheet 
+from data_loader import load_spreadsheet 
 
 REQUIRED_COLUMNS = {
     "Códigos Origem",
