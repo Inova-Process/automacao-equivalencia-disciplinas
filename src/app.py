@@ -9,6 +9,7 @@ from components import (
     render_header,
     render_sidebar,
     render_spreadsheet_uploader,
+    report_card_compact,
 )
 from core import find_equivalencies
 from data_loader import get_university_list, load_spreadsheet
