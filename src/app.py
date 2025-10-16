@@ -1,16 +1,17 @@
-import streamlit as st
+# 1. Bibliotecas padrão (Standard Library)
 import os
 
-# Funções de backend
-from data_loader import load_spreadsheet, get_university_list
+# 2. Bibliotecas de terceiros (Third-party)
+import streamlit as st
+
+# 3. Módulos da sua aplicação (Local application)
+from components import (
+    render_header,
+    render_sidebar,
+    render_spreadsheet_uploader,
+)
 from core import find_equivalencies
-
-# Componentes da interface
-from components.sidebar import render_sidebar
-from components.header import render_header
-from components.spreadsheet_uploader import render_spreadsheet_uploader
-from components.report_card import report_card_compact
-
+from data_loader import get_university_list, load_spreadsheet
 from pdf_generator import create_pdf_bytes
 
 
