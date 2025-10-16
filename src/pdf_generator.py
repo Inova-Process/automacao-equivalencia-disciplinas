@@ -74,7 +74,7 @@ def create_pdf_bytes(results: list) -> bytes:
 
 
 if __name__ == "__main__":
-    print("Iniciando teste de geração de PDF...")
+    # print("Iniciando teste de geração de PDF...")
 
     sample_results_for_test = [
         {"input_code": "CEX001", "status": "Encontrado", "origin_codes": "CEX001", "origin_names": "Cálculo I", "is_equivalent": "Sim", "dest_codes": "MAC118", "dest_names": "Cálculo Diferencial e Integral I", "justification": "Ementa compatível."},
@@ -90,7 +90,8 @@ if __name__ == "__main__":
         # O modo "wb" (write bytes) é o correto para o que a função retorna
         with open(file_path, "wb") as f:
             f.write(pdf_bytes)
-        print(f"✅ PDF de teste gerado com sucesso!")
-        print(f"Abra o arquivo '{file_path}' para verificar o resultado.")
+        # print(f"✅ PDF de teste gerado com sucesso!")
+        # print(f"Abra o arquivo '{file_path}' para verificar o resultado.")
     else:
-        print("❌ Nenhum dado encontrado para gerar o PDF.")
+        ...
+        # print("❌ Nenhum dado encontrado para gerar o PDF.")

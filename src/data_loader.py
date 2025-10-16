@@ -16,13 +16,13 @@ def load_spreadsheet(file_path: str) -> dict[str, DataFrame] | None:
     """
     try:
         spreadsheet_data = pd.read_excel(file_path, sheet_name=None)
-        print(f"Planilha '{file_path}' carregada com sucesso.")
+        # print(f"Planilha '{file_path}' carregada com sucesso.")
         return spreadsheet_data
     except FileNotFoundError:
-        print(f"ERRO: O arquivo não foi encontrado no caminho: {file_path}")
+        # print(f"ERRO: O arquivo não foi encontrado no caminho: {file_path}")
         return None
     except Exception as e:
-        print(f"ERRO: Ocorreu um erro ao ler a planilha: {e}")
+        # print(f"ERRO: Ocorreu um erro ao ler a planilha: {e}")
         return None
 
 
