@@ -78,7 +78,7 @@ def report_card_compact(results: list) -> bool:
                 st.warning(", ".join(codes))
 
         # 3. Retornar o booleano com base na lista de 'nao_encontrados'
-        return not nao_encontrados
+        return len(nao_encontrados) > 0
 
 
 if __name__ == "__main__":

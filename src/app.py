@@ -93,20 +93,12 @@ def main():
     # --- ETAPA 5: EXIBIÇÃO DOS RESULTADOS ---
     if st.session_state.analysis_results:
         st.markdown("---")
-        st.header("Resultado da Análise")
-        
-        # --- ALTERAÇÃO 1: Substituindo o loop pelo componente ---
-        # A lógica de exibição agora está encapsulada no componente report_card,
-        # que retorna a flag 'has_not_found' para nós.
+         
         has_not_found = report_card_compact(st.session_state.analysis_results)
 
         st.markdown("---")
 
         # --- ETAPA 6: GERAÇÃO DO PDF (CONDICIONAL) ---
-
-        
-
-        # A lógica abaixo agora funciona com a flag retornada pelo componente.
         if not has_not_found:
             st.subheader("3. Gerar Relatório")
             st.success("Todas as disciplinas foram encontradas! Você já pode gerar o relatório.")
