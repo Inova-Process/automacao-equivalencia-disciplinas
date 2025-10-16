@@ -1,91 +1,126 @@
 import streamlit as st
 
-
-def report_card(academic_data, validations_dict):
+def report_card_compact(results: list) -> bool:
     """
-    Gera um card de relatório de elegibilidade no Streamlit.
+    Exibe um relatório de equivalência de matérias de forma compacta,
+    agrupando os resultados por status em expanders.
+    Todo o relatório é encapsulado em um container com borda.
 
     Args:
-        student_name (str): O nome do estudante.
-        validations_dict (dict): Dicionário com os resultados booleanos das validações.
-        academic_data (dict): Dicionário com os dados acadêmicos do estudante.
-    """
+        results (list): Uma lista de dicionários com os detalhes da análise.
     
-    # --- Container Principal para o Card ---
+    Returns:
+        bool: True se todas as matérias foram encontradas, False caso contrário.
+    """
+    # Container principal que engloba todo o relatório
     with st.container(border=True):
-        st.subheader(f"Resultado para {academic_data.get('nome_aluno', 'Aluno Desconhecido')}")
-        st.markdown("---")
+        st.subheader("Resultado da Análise de Equivalência")
 
-        # --- Status Final (APTO/INAPTO) ---
-        if validations_dict.get("valid_student", False):
-            st.success(f"✅ PARABÉNS! O(A) aluno(a) está APTO(A).")
-        else:
-            st.error(f"❌ ATENÇÃO! O(A) aluno(a) está INAPTO(A).")
-        
-        st.write("") # Adiciona um espaço
+        if not results:
+            st.info("Nenhuma matéria foi processada para exibir o resultado.")
+            return True # Retorna True se a lista de entrada estiver vazia
 
-        # --- Painel de Desempenho Rápido ---
-        st.write("**Painel de Desempenho**")
-        
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            st.metric(label="CR Acumulado", value=f'{academic_data.get("cr_acumulado", 0.0)}')
-        with col2:
-            st.metric(label="Períodos Cursados", value=f'{academic_data.get("periodos_integralizados", 0)}')
-        with col3:
-            st.metric(label="Horas de Extensão", value=f'{academic_data.get("carga_horaria_extensao", 0)}h')
-            
-        st.write("")
+        # 1. Separar os resultados em listas por categoria
+        equivalentes = []
+        nao_equivalentes = []
+        nao_encontrados = []
 
-        # --- Expander para Detalhes dos Critérios ---
-        with st.expander("Ver análise detalhada dos critérios"):
-            
-            # Mapeamento de chaves para nomes amigáveis e requisitos de exemplo
+        for result in results:
+            status = result.get("status")
+            if status == "Encontrado":
+                is_equivalent_str = str(result.get("is_equivalent", "Não")).lower()
+                if is_equivalent_str in ['sim', 's', 'true', '1', 'verdadeiro']:
+                    equivalentes.append(result)
+                else:
+                    nao_equivalentes.append(result)
+            elif status == "Não Encontrado na Planilha":
+                nao_encontrados.append(result)
 
-            academic_requirements = {
-                                        "minimum_cr": 6.0,
-                                        "max_periods": academic_data["prazo_maximo"],
-                                        "minimum_ext_hours": 160.0,
-                                        "minimum_credits": 87
-                                    }
+        # 2. Criar um expander para cada categoria, se não estiver vazia
 
-            criteria_map = {
-                "valid_cr": {"name": "Coeficiente de Rendimento", "value": academic_data.get("cr_acumulado"), "required": academic_requirements["minimum_cr"]},
-                "valid_periods": {"name": "Períodos Cursados", "value": academic_data.get("periodos_integralizados"), "required": f'<= {academic_requirements["max_periods"]}'},
-                "valid_ext_hours": {"name": "Horas de Extensão", "value": academic_data.get("carga_horaria_extensao"), "required": f">= {academic_requirements['minimum_ext_hours']}"},
-                # "valid_company": {"name": "Empresa Conveniada", "value": validations_dict.get("valid_company"), "required": "True"},
-                "valid_courses": {"name": "Disciplinas Obrigatórias", "value": validations_dict.get("valid_courses"), "required": "True"},
-            }
-
-            for key, validation_status in validations_dict.items():
-                if key in criteria_map:
-                    details = criteria_map[key]
-                    icon = "✅" if validation_status else "❌"
+        # Expander para Matérias Equivalentes
+        if equivalentes:
+            with st.expander(f"✅ Matérias Equivalentes ({len(equivalentes)})", expanded=True):
+                for item in equivalentes:
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        st.markdown(f"**Origem:** {item.get('origin_names', 'N/A')}")
+                        st.caption(f"Código: `{item.get('origin_codes', 'N/A')}`")
+                    with col2:
+                        st.markdown(f"**Destino (UFRJ):** {item.get('dest_names', 'N/A')}")
+                        st.caption(f"Código: `{item.get('dest_codes', 'N/A')}`")
                     
-                    st.markdown(
-                        # f"{icon} **{details['name']}:** (Seu: `{details['value']}` | Requisito: `{details['required']}`)"
-                        f"{icon} **{details['name']}**"
-                    )
-                    
-                    # Adiciona a explicação se o critério não foi cumprido
-                    if not validation_status:
-                        if key == "valid_cr":
-                            st.markdown(f"**Por que?** Seu Coeficiente de Rendimento (CR) está abaixo do mínimo exigido. Para ser elegível, o aluno deve manter um CR de `{academic_requirements['minimum_cr']}` ou superior. Seu CR atual é de `{academic_data.get('cr_acumulado')}`.")
-                            st.markdown(f"**Como resolver?** Entre em contato com a COAA ou com seu orientador acadêmico para discutir estratégias de melhoria acadêmica, como monitorias, grupos de estudo ou aconselhamento acadêmico.")
-                        elif key == "valid_periods":
-                            st.markdown(f"**Por que?** O aluno excedeu o número máximo de períodos para a conclusão do curso. O prazo máximo é de `{academic_requirements['max_periods']}` períodos e o aluno já cursou `{academic_data.get('periodos_integralizados')}`.")
-                            st.markdown(f"**Como resolver?** Entre em contato com a COAA ou com seu orientador acadêmico para analisar o seu caso.")
-                        elif key == "valid_ext_hours":
-                            st.markdown(f"**Por que?** A carga horária de extensão registrada está abaixo do requisito mínimo. O aluno precisa completar um total de `{academic_requirements['minimum_ext_hours']}` horas de extensão, mas a carga horária atual é de `{academic_data.get('carga_horaria_extensao')}` horas.")
-                            st.markdown(f"**Como resolver?** Considere participar de atividades de extensão oferecidas pela universidade. Confira as opções disponíveis em: https://portal.ufrj.br/Registro/requerimento/aluno/extensao/filtro")
-                        elif key == "valid_courses":
-                            st.markdown(f"**Por que?** O aluno ainda não foi aprovado em todas as disciplinas obrigatórias necessárias para o programa. É essencial que todas as matérias obrigatórias até o quarto período sejam concluídas.")
-                            materias_pendentes = validations_dict.get("report", {}).get("status", {}).get("materias_pendentes")
-                            if materias_pendentes:
-                                expander_label = f"Matérias Pendentes ({len(materias_pendentes)})"
-                                with st.expander(expander_label):
-                                    for materia in materias_pendentes:
-                                        st.markdown(f"- {materia}")
-                            else:
-                                st.caption("Não há matérias pendentes para exibir.")
-                        st.markdown("")
+                    if item.get('justification'):
+                        st.info(f"**Justificativa:** {item.get('justification')}", icon="ℹ️")
+                    st.divider()
+
+        # Expander para Matérias Não Equivalentes
+        if nao_equivalentes:
+            with st.expander(f"❌ Matérias Não Equivalentes ({len(nao_equivalentes)})", expanded=False):
+                for item in nao_equivalentes:
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        st.markdown(f"**Origem:** {item.get('origin_names', 'N/A')}")
+                        st.caption(f"Código: `{item.get('origin_codes', 'N/A')}`")
+                    with col2:
+                        st.markdown(f"**Destino (UFRJ):** {item.get('dest_names', 'N/A')}")
+                        st.caption(f"Código: `{item.get('dest_codes', 'N/A')}`")
+
+                    if item.get('justification'):
+                        st.warning(f"**Justificativa:** {item.get('justification')}", icon="⚠️")
+                    st.divider()
+
+        # Expander para Matérias Não Encontradas
+        if nao_encontrados:
+            with st.expander(f"❓ Matérias Não Encontradas ({len(nao_encontrados)})", expanded=False):
+                codes = [f"`{item.get('input_code')}`" for item in nao_encontrados]
+                st.write("Os seguintes códigos não foram localizados na base de dados de equivalência:")
+                st.warning(", ".join(codes))
+
+        # 3. Retornar o booleano com base na lista de 'nao_encontrados'
+        return not nao_encontrados
+
+
+if __name__ == "__main__":
+    # Título do seu App
+    st.title("Analisador de Equivalência de Matérias")
+
+    # --- CENÁRIO 1: Todas as matérias são encontradas ---
+    st.header("Cenário 1: Todas Encontradas")
+    sample_results_all_found = [
+        {
+            "input_code": "CEX001", "status": "Encontrado", "origin_codes": "CEX001",
+            "origin_names": "Cálculo I", "is_equivalent": "Sim", "dest_codes": "MAC118",
+            "dest_names": "Cálculo Diferencial e Integral I", "justification": "Ementa e carga horária totalmente compatíveis."
+        },
+        {
+            "input_code": "FIS002", "status": "Encontrado", "origin_codes": "FIS002",
+            "origin_names": "Física Experimental I", "is_equivalent": "Não", "dest_codes": "FIS121",
+            "dest_names": "Física Experimental I", "justification": "Carga horária da matéria de origem é inferior à da matéria de destino."
+        }
+    ]
+
+    todas_encontradas = report_card_compact(sample_results_all_found)
+    st.write(f"**Resultado da verificação:** `todas_encontradas` é `{todas_encontradas}`")
+    st.write("---")
+
+
+    # --- CENÁRIO 2: Algumas matérias NÃO são encontradas ---
+    st.header("Cenário 2: Algumas Não Encontradas")
+    sample_results_some_not_found = [
+        {
+            "input_code": "CEX001", "status": "Encontrado", "origin_codes": "CEX001",
+            "origin_names": "Cálculo I", "is_equivalent": "Sim", "dest_codes": "MAC118",
+            "dest_names": "Cálculo Diferencial e Integral I", "justification": "Ementa compatível."
+        },
+        {"input_code": "COMP123", "status": "Não Encontrado na Planilha"}
+    ]
+
+    todas_encontradas_2 = report_card_compact(sample_results_some_not_found)
+    st.write(f"**Resultado da verificação:** `todas_encontradas_2` é `{todas_encontradas_2}`")
+
+    # Exemplo de como você pode usar o booleano em outra lógica
+    if todas_encontradas_2:
+        st.success("Tudo certo! Todas as matérias foram processadas e você pode prosseguir.")
+    else:
+        st.error("Atenção: Uma ou mais matérias não foram encontradas. Verifique os códigos e tente novamente.")
