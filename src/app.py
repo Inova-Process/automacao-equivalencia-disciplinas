@@ -11,9 +11,7 @@ from components.header import render_header
 from components.spreadsheet_uploader import render_spreadsheet_uploader
 from components.report_card import report_card_compact
 
-# TODO: Futuramente, importar a função de gerar PDF
 from pdf_generator import create_pdf_bytes
-
 
 
 def main():
@@ -37,14 +35,10 @@ def main():
 
     # --- Renderização dos Componentes Visuais Estáticos ---
     render_sidebar()
-    # TODO: Modificar os textos da sidebar
     render_header(LOGO_PATH)
-    st.title("Analisador de Equivalência de Disciplinas")
-    st.markdown("---")
 
     # --- ETAPA 1: UPLOAD E VALIDAÇÃO DA PLANILHA ---
     uploaded_file = render_spreadsheet_uploader()
-    #TODO subheader 1
 
     if uploaded_file and st.session_state.spreadsheet_data is None:
         st.session_state.spreadsheet_data = load_spreadsheet(uploaded_file)
@@ -80,7 +74,7 @@ def main():
 
     # --- ETAPA 4: BOTÃO DE ANÁLISE ---
         if st.button("Analisar Equivalências", type="primary", use_container_width=True):
-            if course_codes_input.strip(): # Verifica se o usuário digitou algo
+            if course_codes_input.strip():
                 with st.spinner("Buscando equivalências..."):
                     st.session_state.analysis_results = find_equivalencies(
                         st.session_state.spreadsheet_data,

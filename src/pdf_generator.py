@@ -70,7 +70,7 @@ def create_pdf_bytes(results: list) -> bytes:
         pdf.ln()
         pdf.set_text_color(0, 0, 0)
 
-    return pdf.output()
+    return bytes(pdf.output())
 
 
 if __name__ == "__main__":
