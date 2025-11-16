@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 from data_loader import load_spreadsheet 
 
+
 REQUIRED_COLUMNS = {
     "Códigos Origem",
     "Nomes Origem",
@@ -11,9 +12,11 @@ REQUIRED_COLUMNS = {
     "Justificativa Parecer"
 }
 
+
 def validate_spreadsheet(uploaded_file) -> tuple[bool, str]:
     """
-    Valida a planilha carregada, verificando se todas as abas contêm as colunas necessárias.
+    Valida a planilha carregada, verificando se PELO MENOS UMA aba 
+    contém as colunas necessárias (definidas em REQUIRED_COLUMNS).
 
     Args:
         uploaded_file: O objeto de arquivo carregado pelo Streamlit.
@@ -29,18 +32,25 @@ def validate_spreadsheet(uploaded_file) -> tuple[bool, str]:
     if spreadsheet_data is None:
         return False, "O arquivo não pôde ser lido. Verifique se é um arquivo .xlsx válido."
     
+    # Se o dict de planilhas estiver vazio (arquivo sem abas)
+    if not spreadsheet_data:
+         return False, "O arquivo .xlsx está vazio (não contém abas)."
+
+    # Itera pelas abas procurando por PELO MENOS UMA válida
     for sheet_name, df in spreadsheet_data.items():
         sheet_columns = set(df.columns)
         
-        if not REQUIRED_COLUMNS.issubset(sheet_columns):
-            missing_cols = REQUIRED_COLUMNS - sheet_columns
-            error_message = (
-                f"Validação falhou! A aba '{sheet_name}' não contém as seguintes colunas obrigatórias: "
-                f"{', '.join(missing_cols)}"
-            )
-            return False, error_message
+        # Se as colunas obrigatórias SÃO um subconjunto das colunas da aba
+        if REQUIRED_COLUMNS.issubset(sheet_columns):
+            # Encontrou uma aba válida, a planilha inteira é considerada válida
+            return True, "Planilha validada: Pelo menos uma aba de faculdade válida foi encontrada."
             
-    return True, "Planilha validada com sucesso! Todas as abas contêm as colunas necessárias."
+    # Se o loop terminar, significa que NENHUMA aba válida foi encontrada
+    error_message = (
+        "Validação falhou! Nenhuma aba na planilha contém o conjunto completo de colunas obrigatórias. "
+        f"Verifique se pelo menos uma aba possui: {', '.join(list(REQUIRED_COLUMNS))}"
+    )
+    return False, error_message
 
 
 def render_spreadsheet_uploader():
