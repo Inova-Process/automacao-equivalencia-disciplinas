@@ -73,7 +73,7 @@ def main():
     # Esta lógica permanece a mesma. 
     # Ela só vai rodar se a 'ETAPA 1' for bem-sucedida.
     if st.session_state.spreadsheet_data:
-        st.subheader("2. Selecione a Universidade e Insira os Códigos")
+        st.subheader("Selecione a Universidade e Insira os Códigos")
         
         col1, col2 = st.columns([1, 2])
         
@@ -118,10 +118,10 @@ def main():
 
         # --- ETAPA 6: GERAÇÃO DO PDF (CONDICIONAL) ---
         if not has_not_found:
-            st.subheader("3. Gerar Relatório")
+            st.subheader("Gerar Relatório")
             st.success("Todas as disciplinas foram encontradas! Você já pode gerar o relatório.")
 
-            pdf_bytes = create_pdf_bytes(st.session_state.analysis_results)
+            pdf_bytes = create_pdf_bytes(st.session_state.analysis_results, LOGO_PATH)
             st.download_button(
                 label="Baixar Relatório em PDF",
                 data=pdf_bytes,
