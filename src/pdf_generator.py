@@ -6,14 +6,10 @@ from typing import List, Dict
 from fpdf import FPDF
 
 # --- Constantes de Layout ---
-# A4 em paisagem (L) tem 297mm de largura.
-# Margens de 10mm de cada lado = 277mm de área útil.
 PAGE_WIDTH = 297
 MARGIN = 10
 USABLE_WIDTH = PAGE_WIDTH - (2 * MARGIN)
 
-# Definição das colunas (agora com 6 colunas)
-# Total = 25+80 + 25+80 + 25+42 = 277
 COL_WIDTHS = {
     "dest_code": 25,
     "dest_name": 80,
@@ -22,8 +18,8 @@ COL_WIDTHS = {
     "parecer": 25,
     "justificativa": 42
 }
-BASE_LINE_HEIGHT = 5 # Altura base para uma linha de texto (em mm)
-CELL_PADDING = 2 # Espaçamento interno da célula
+BASE_LINE_HEIGHT = 5 
+CELL_PADDING = 2
 
 class CustomPDF(FPDF):
     """
@@ -84,18 +80,19 @@ class CustomPDF(FPDF):
         is_equivalent = is_equivalent_str in ['sim', 's', 'true', '1', 'verdadeiro']
         parecer_text = "Favorável" if is_equivalent else "Desfavorável"
         
-        # <-- CORREÇÃO: Garante que um valor None vire uma string vazia ""
         justification_text = row_data.get("justification") or ""
 
-        # Textos que irão para as células (6 itens)
+        # --- CORREÇÃO APLICADA AQUI ---
+        # Garantir que tudo seja string antes de passar para o PDF
         cell_texts = [
-            row_data.get("dest_codes") or "",
-            row_data.get("dest_names") or "",
-            row_data.get("origin_codes") or "",
-            row_data.get("origin_names") or "",
-            parecer_text,           # Este já é seguro
-            justification_text
+            str(row_data.get("dest_codes") or ""),
+            str(row_data.get("dest_names") or ""),
+            str(row_data.get("origin_codes") or ""),
+            str(row_data.get("origin_names") or ""),
+            str(parecer_text),
+            str(justification_text)
         ]
+        # --- FIM DA CORREÇÃO ---
         
         cell_widths = [
             COL_WIDTHS["dest_code"],
@@ -110,7 +107,7 @@ class CustomPDF(FPDF):
         self.set_font("Arial", "", 8)
 
         for i in range(len(cell_texts)):
-            text = cell_texts[i] # Agora é garantido que 'text' não é None
+            text = cell_texts[i] # Agora é garantido que 'text' é uma string
             width = cell_widths[i] - (CELL_PADDING * 2)
             
             if width <= 0: continue
@@ -141,17 +138,20 @@ class CustomPDF(FPDF):
         is_equivalent = is_equivalent_str in ['sim', 's', 'true', '1', 'verdadeiro']
         parecer_text = "Favorável" if is_equivalent else "Desfavorável"
         
-        # <-- CORREÇÃO: Garante que um valor None vire uma string vazia ""
         justification_text = row_data.get("justification") or ""
 
+        # --- CORREÇÃO APLICADA AQUI ---
+        # Garantir que tudo seja string antes de passar para o PDF
         cell_texts = [
-            row_data.get("dest_codes") or "",
-            row_data.get("dest_names") or "",
-            row_data.get("origin_codes") or "",
-            row_data.get("origin_names") or "",
-            parecer_text,
-            justification_text
+            str(row_data.get("dest_codes") or ""),
+            str(row_data.get("dest_names") or ""),
+            str(row_data.get("origin_codes") or ""),
+            str(row_data.get("origin_names") or ""),
+            str(parecer_text),
+            str(justification_text)
         ]
+        # --- FIM DA CORREÇÃO ---
+        
         cell_widths = [
             COL_WIDTHS["dest_code"],
             COL_WIDTHS["dest_name"],
@@ -166,7 +166,7 @@ class CustomPDF(FPDF):
         
         for i in range(len(cell_texts)):
             width = cell_widths[i]
-            text = cell_texts[i] # Agora é garantido que 'text' não é None
+            text = cell_texts[i] # Agora é garantido que 'text' é uma string
             
             self.set_xy(current_x, start_y) 
             
@@ -224,16 +224,16 @@ if __name__ == "__main__":
 
     sample_results_for_test = [
         {"input_code": "CEX001", "status": "Encontrado", "origin_codes": "CEX001", "origin_names": "Cálculo I", "is_equivalent": "Sim", "dest_codes": "MAC118", "dest_names": "Cálculo Diferencial e Integral I", "justification": "Ementa e carga horária totalmente compatíveis."},
-        {"input_code": "FIS002", "status": "Encontrado", "origin_codes": "FIS002", "origin_names": "Física Experimental I - Texto muito longo para testar a quebra de linha e ver se funciona corretamente.", "is_equivalent": "Não", "dest_codes": "FIS121", "dest_names": "Física Experimental I", "justification": "Carga horária insuficiente."},
+        {"input_code": "FIS002", "status": "Encontrado", "origin_codes": "FIS002", "origin_names": "Física Experimental I", "is_equivalent": "Não", "dest_codes": "FIS121", "dest_names": "Física Experimental I", "justification": "Carga horária insuficiente."},
         {"input_code": "COMP123", "status": "Não Encontrado na Planilha"},
-        {"input_code": "QUI003", "status": "Encontrado", "origin_codes": "QUI003 + QUI004", "origin_names": "Química Geral e Inorgânica", "is_equivalent": True, "dest_codes": "QUIG11", "dest_names": "Química Geral", "justification": None}, # <-- TESTE COM JUSTIFICATIVA NULA
-        {"input_code": "XYZ789", "status": "Encontrado", "origin_codes": "XYZ789", "origin_names": None, "is_equivalent": True, "dest_codes": "IC101", "dest_names": "Introdução", "justification": "OK."} # <-- TESTE COM NOME DE ORIGEM NULO
+        {"input_code": "QUI003", "status": "Encontrado", "origin_codes": "QUI003 + QUI004", "origin_names": "Química Geral e Inorgânica", "is_equivalent": True, "dest_codes": "QUIG11", "dest_names": "Química Geral", "justification": None}, # Teste com Nulo
+        {"input_code": "ENG123", "status": "Encontrado", "origin_codes": 12345, "origin_names": "Engenharia de Software", "is_equivalent": True, "dest_codes": 54321, "dest_names": "Engenharia de Software I", "justification": "OK."} # <-- TESTE COM 'int'
     ]
 
     pdf_bytes = create_pdf_bytes(sample_results_for_test, LOGO_TO_TEST)
 
     if pdf_bytes:
-        file_path = "teste_relatorio_corrigido_none.pdf"
+        file_path = "teste_relatorio_corrigido_final.pdf"
         with open(file_path, "wb") as f:
             f.write(pdf_bytes)
         print(f"✅ PDF de teste gerado com sucesso!")
